@@ -8,648 +8,325 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Tracking" />
-  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-
   <style>
-    :root {
-      --bg:        #0B1826;
-      --surface:   #132236;
-      --surface2:  #1A2F48;
-      --amarillo:  #F5C518;
-      --verde:     #2ECC71;
-      --rojo:      #E74C3C;
-      --texto:     #FFFFFF;
-      --texto-soft:#7A9BB5;
-      --border:    rgba(255,255,255,0.06);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--texto);
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      max-width: 430px;
-      margin: 0 auto;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    /* ── HEADER ── */
-    .header {
-      padding: 56px 24px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .logo span {
-      color: var(--amarillo);
-    }
-
-    .mes-btn {
-      background: var(--surface2);
-      border: none;
-      color: var(--texto-soft);
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 8px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* ── TARJETA TOTAL ── */
-    .total-card {
-      margin: 0 20px 24px;
-      background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
-      border-radius: 20px;
-      padding: 24px;
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .total-card::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 120px; height: 120px;
-      background: var(--amarillo);
-      opacity: 0.06;
-      border-radius: 50%;
-    }
-
-    .total-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--texto-soft);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .total-monto {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--amarillo);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .total-moneda {
-      font-size: 13px;
-      color: var(--texto-soft);
-    }
-
-    /* ── SECCIÓN SOBRES ── */
-    .section-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--texto-soft);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 0 24px;
-      margin-bottom: 12px;
-    }
-
-    .sobres-lista {
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 100px;
-    }
-
-    .sobre-card {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 18px 20px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: transform 0.15s, background 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .sobre-card:active { transform: scale(0.98); }
-
-    .sobre-icono {
-      width: 48px; height: 48px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
-    }
-
-    .sobre-info { flex: 1; min-width: 0; }
-
-    .sobre-nombre {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .sobre-barra-bg {
-      height: 4px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .sobre-barra-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width 0.6s ease;
-    }
-
-    .sobre-monto {
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .sobre-disponible {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .sobre-disponible.positivo { color: var(--verde); }
-    .sobre-disponible.negativo { color: var(--rojo); }
-    .sobre-disponible.ilimitado { color: var(--texto-soft); }
-
-    .sobre-label {
-      font-size: 11px;
-      color: var(--texto-soft);
-      margin-top: 2px;
-    }
-
-    /* ── PANTALLA DETALLE ── */
-    .pantalla {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      transform: translateX(100%);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 100;
-      overflow-y: auto;
-      max-width: 430px;
-      margin: 0 auto;
-    }
-
-    .pantalla.activa { transform: translateX(0); }
-
-    .detalle-header {
-      padding: 56px 24px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .btn-back {
-      background: var(--surface2);
-      border: none;
-      color: var(--texto);
-      width: 40px; height: 40px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .detalle-titulo {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .detalle-resumen {
-      margin: 0 20px 24px;
-      background: var(--surface);
-      border-radius: 20px;
-      padding: 24px;
-      border: 1px solid var(--border);
-    }
-
-    .detalle-fila {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .detalle-fila:last-child { margin-bottom: 0; }
-
-    .detalle-fila-label {
-      font-size: 13px;
-      color: var(--texto-soft);
-    }
-
-    .detalle-fila-valor {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .detalle-disponible-grande {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 40px;
-      font-weight: 700;
-      margin-top: 16px;
-    }
-
-    .detalle-disponible-label {
-      font-size: 13px;
-      color: var(--texto-soft);
-      margin-top: 4px;
-    }
-
-    .tx-titulo {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--texto-soft);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 0 24px;
-      margin-bottom: 12px;
-    }
-
-    .tx-lista {
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      margin-bottom: 40px;
-    }
-
-    .tx-item {
-      background: var(--surface);
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .tx-item:first-child { border-radius: 16px 16px 0 0; }
-    .tx-item:last-child  { border-radius: 0 0 16px 16px; }
-    .tx-item:only-child  { border-radius: 16px; }
-
-    .tx-comercio {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 200px;
-    }
-
-    .tx-fecha {
-      font-size: 12px;
-      color: var(--texto-soft);
-    }
-
-    .tx-monto {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--rojo);
-      text-align: right;
-    }
-
-    .tx-tarjeta {
-      font-size: 11px;
-      color: var(--texto-soft);
-      text-align: right;
-      margin-top: 2px;
-    }
-
-    /* ── LOADING ── */
-    .loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 24px;
-      gap: 16px;
-    }
-
-    .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid var(--surface2);
-      border-top-color: var(--amarillo);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-txt {
-      font-size: 14px;
-      color: var(--texto-soft);
-    }
-
-    /* ── EMPTY ── */
-    .empty {
-      text-align: center;
-      padding: 40px 24px;
-      color: var(--texto-soft);
-      font-size: 14px;
-    }
-
-    /* ── REFRESH BTN ── */
-    .refresh-btn {
-      position: fixed;
-      bottom: 28px;
-      right: 24px;
-      background: var(--amarillo);
-      color: #0B1826;
-      border: none;
-      width: 52px; height: 52px;
-      border-radius: 16px;
-      font-size: 22px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 20px rgba(245,197,24,0.3);
-      transition: transform 0.15s;
-      z-index: 50;
-    }
-
-    .refresh-btn:active { transform: scale(0.92); }
-
-    /* ── TOAST ── */
-    .toast {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--surface2);
-      color: var(--texto);
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 13px;
-      opacity: 0;
-      transition: all 0.3s;
-      pointer-events: none;
-      white-space: nowrap;
-      z-index: 200;
-    }
-
-    .toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    :root { --bg:#0B1826; --surface:#132236; --surface2:#1A2F48; --amarillo:#F5C518; --verde:#2ECC71; --rojo:#E74C3C; --texto:#FFFFFF; --texto-soft:#7A9BB5; --border:rgba(255,255,255,0.06); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--texto); font-family:'Inter',sans-serif; min-height:100vh; max-width:430px; margin:0 auto; overflow-x:hidden; }
+    .header { padding:56px 24px 20px; display:flex; justify-content:space-between; align-items:center; }
+    .logo { font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; }
+    .logo span { color:var(--amarillo); }
+    .mes-btn { background:var(--surface2); border:none; color:var(--texto-soft); font-family:'Inter',sans-serif; font-size:13px; font-weight:500; padding:8px 14px; border-radius:20px; cursor:pointer; }
+    .total-card { margin:0 20px 24px; background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%); border-radius:20px; padding:24px; border:1px solid var(--border); position:relative; overflow:hidden; }
+    .total-card::before { content:''; position:absolute; top:-40px; right:-40px; width:120px; height:120px; background:var(--amarillo); opacity:0.06; border-radius:50%; }
+    .total-label { font-size:12px; font-weight:500; color:var(--texto-soft); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+    .total-monto { font-family:'Space Grotesk',sans-serif; font-size:36px; font-weight:700; color:var(--amarillo); line-height:1; margin-bottom:4px; }
+    .total-moneda { font-size:13px; color:var(--texto-soft); }
+    .section-title { font-size:12px; font-weight:600; color:var(--texto-soft); text-transform:uppercase; letter-spacing:1px; padding:0 24px; margin-bottom:12px; }
+    .sobres-lista { padding:0 20px; display:flex; flex-direction:column; gap:10px; margin-bottom:100px; }
+    .sobre-card { background:var(--surface); border-radius:16px; padding:18px 20px; border:1px solid var(--border); cursor:pointer; transition:transform 0.15s; display:flex; align-items:center; gap:16px; }
+    .sobre-card:active { transform:scale(0.98); }
+    .sobre-icono { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+    .sobre-info { flex:1; min-width:0; }
+    .sobre-nombre { font-size:15px; font-weight:600; margin-bottom:6px; }
+    .sobre-barra-bg { height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+    .sobre-barra-fill { height:100%; border-radius:2px; transition:width 0.6s ease; }
+    .sobre-monto { text-align:right; flex-shrink:0; }
+    .sobre-disponible { font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; }
+    .sobre-disponible.positivo { color:var(--verde); }
+    .sobre-disponible.negativo { color:var(--rojo); }
+    .sobre-disponible.ilimitado { color:var(--texto-soft); }
+    .sobre-label { font-size:11px; color:var(--texto-soft); margin-top:2px; }
+    .pantalla { position:fixed; inset:0; background:var(--bg); transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); z-index:100; overflow-y:auto; max-width:430px; margin:0 auto; }
+    .pantalla.activa { transform:translateX(0); }
+    .detalle-header { padding:56px 24px 20px; display:flex; align-items:center; gap:16px; }
+    .btn-back { background:var(--surface2); border:none; color:var(--texto); width:40px; height:40px; border-radius:12px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .detalle-titulo { font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; }
+    .detalle-resumen { margin:0 20px 24px; background:var(--surface); border-radius:20px; padding:24px; border:1px solid var(--border); }
+    .detalle-fila { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .detalle-fila:last-child { margin-bottom:0; }
+    .detalle-fila-label { font-size:13px; color:var(--texto-soft); }
+    .detalle-fila-valor { font-size:14px; font-weight:600; }
+    .detalle-disponible-grande { font-family:'Space Grotesk',sans-serif; font-size:40px; font-weight:700; margin-top:16px; }
+    .detalle-disponible-grande.positivo { color:var(--verde); }
+    .detalle-disponible-grande.negativo { color:var(--rojo); }
+    .detalle-disponible-grande.ilimitado { color:var(--texto-soft); }
+    .detalle-disponible-label { font-size:13px; color:var(--texto-soft); margin-top:4px; }
+    .tx-titulo { font-size:12px; font-weight:600; color:var(--texto-soft); text-transform:uppercase; letter-spacing:1px; padding:0 24px; margin-bottom:12px; }
+    .tx-lista { padding:0 20px; display:flex; flex-direction:column; gap:1px; margin-bottom:40px; }
+    .tx-item { background:var(--surface); padding:16px 20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:background 0.15s; }
+    .tx-item:hover { background:var(--surface2); }
+    .tx-item:first-child { border-radius:16px 16px 0 0; }
+    .tx-item:last-child { border-radius:0 0 16px 16px; }
+    .tx-item:only-child { border-radius:16px; }
+    .tx-comercio { font-size:14px; font-weight:500; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+    .tx-fecha { font-size:12px; color:var(--texto-soft); }
+    .tx-monto { font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; color:var(--rojo); text-align:right; }
+    .tx-tarjeta { font-size:11px; color:var(--texto-soft); text-align:right; margin-top:2px; }
+    .tx-editar { font-size:11px; color:var(--amarillo); text-align:right; margin-top:4px; cursor:pointer; }
+    .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 24px; gap:16px; }
+    .spinner { width:36px; height:36px; border:3px solid var(--surface2); border-top-color:var(--amarillo); border-radius:50%; animation:spin 0.8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-txt { font-size:14px; color:var(--texto-soft); }
+    .empty { text-align:center; padding:40px 24px; color:var(--texto-soft); font-size:14px; }
+    .refresh-btn { position:fixed; bottom:28px; right:24px; background:var(--amarillo); color:#0B1826; border:none; width:52px; height:52px; border-radius:16px; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(245,197,24,0.3); transition:transform 0.15s; z-index:50; }
+    .refresh-btn:active { transform:scale(0.92); }
+    .toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface2); color:var(--texto); padding:12px 20px; border-radius:12px; font-size:13px; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; z-index:200; }
+    .toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; display:none; align-items:flex-end; justify-content:center; }
+    .modal-overlay.visible { display:flex; }
+    .modal { background:var(--surface); border-radius:24px 24px 0 0; padding:24px; width:100%; max-width:430px; }
+    .modal-titulo { font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; margin-bottom:8px; }
+    .modal-subtitulo { font-size:13px; color:var(--texto-soft); margin-bottom:20px; }
+    .modal-opciones { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+    .modal-opcion { background:var(--surface2); border:2px solid transparent; border-radius:14px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:border-color 0.15s; }
+    .modal-opcion:active { transform:scale(0.98); }
+    .modal-opcion.seleccionado { border-color:var(--amarillo); }
+    .modal-opcion-icono { font-size:20px; }
+    .modal-opcion-nombre { font-size:15px; font-weight:500; }
+    .modal-opcion-ignorar { background:var(--surface2); border:2px solid transparent; border-radius:14px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:border-color 0.15s; }
+    .modal-opcion-ignorar.seleccionado { border-color:var(--rojo); }
+    .modal-btn { width:100%; background:var(--amarillo); color:#0B1826; border:none; padding:16px; border-radius:14px; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; cursor:pointer; margin-top:8px; }
+    .modal-btn-cancelar { width:100%; background:transparent; color:var(--texto-soft); border:none; padding:12px; border-radius:14px; font-size:14px; cursor:pointer; }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════ PANTALLA PRINCIPAL ══════════════════ -->
 <div id="pantalla-inicio">
   <div class="header">
     <div class="logo">Track<span>ing</span></div>
-    <button class="mes-btn" id="mes-display">📅 Junio 2026</button>
+    <button class="mes-btn" id="mes-display">Junio 2026</button>
   </div>
-
   <div class="total-card">
     <div class="total-label">Total gastado este mes</div>
-    <div class="total-monto" id="total-monto">₡0</div>
+    <div class="total-monto" id="total-monto">Cargando...</div>
     <div class="total-moneda">Colones costarricenses</div>
   </div>
-
   <div class="section-title">Mis Sobres</div>
-
   <div class="sobres-lista" id="sobres-lista">
-    <div class="loading">
-      <div class="spinner"></div>
-      <div class="loading-txt">Cargando sobres...</div>
-    </div>
+    <div class="loading"><div class="spinner"></div><div class="loading-txt">Cargando sobres...</div></div>
   </div>
 </div>
 
-<!-- ══════════════════ PANTALLA DETALLE ══════════════════ -->
 <div class="pantalla" id="pantalla-detalle">
   <div class="detalle-header">
     <button class="btn-back" onclick="cerrarDetalle()">←</button>
     <div class="detalle-titulo" id="detalle-titulo">Sobre</div>
   </div>
-
   <div class="detalle-resumen" id="detalle-resumen"></div>
-
   <div class="tx-titulo">Transacciones recientes</div>
-  <div class="tx-lista" id="tx-lista">
-    <div class="loading">
-      <div class="spinner"></div>
-    </div>
+  <div class="tx-lista" id="tx-lista"><div class="loading"><div class="spinner"></div></div></div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-titulo">Cambiar sobre</div>
+    <div class="modal-subtitulo" id="modal-comercio"></div>
+    <div class="modal-opciones" id="modal-opciones"></div>
+    <button class="modal-btn" onclick="guardarCategoria()">Guardar</button>
+    <button class="modal-btn-cancelar" onclick="cerrarModal()">Cancelar</button>
   </div>
 </div>
 
-<button class="refresh-btn" onclick="recargar()" title="Actualizar">↻</button>
+<button class="refresh-btn" onclick="recargar()">↻</button>
 <div class="toast" id="toast"></div>
 
 <script>
-  const API = 'https://script.google.com/macros/s/AKfycbyWdhv9hu3bmW19QWWVFxFnqfKLJgTY4qZMYqidkHXLMHjfZUkiTuyfZ9yH7Z-Q-DjYbg/exec';
+var API = 'https://script.google.com/macros/s/AKfycbyWdhv9hu3bmW19QWWVFxFnqfKLJgTY4qZMYqidkHXLMHjfZUkiTuyfZ9yH7Z-Q-DjYbg/exec';
+var mesActual = '2026-06';
+var datosGlobales = null;
+var txEditando = null;
+var categoriaSeleccionada = null;
+var categoriaActual = null;
 
-  let mesActual = '2026-06';
-  let datosGlobales = null;
+var SOBRES = [
+  { nombre: 'Gasolina',       icono: '⛽' },
+  { nombre: 'Salidas',        icono: '🍽️' },
+  { nombre: 'Comida Casa',    icono: '🛒' },
+  { nombre: 'Neurodiversity', icono: '🧠' },
+  { nombre: 'Otros',          icono: '📦' }
+];
 
-  // ── INICIAR ──
-  window.addEventListener('load', cargarDatos);
+window.addEventListener('load', cargarDatos);
 
-  async function cargarDatos() {
-    try {
-      const res = await fetch(API + '?tipo=resumen&mes=' + mesActual);
-      const data = await res.json();
+function jsonp(url) {
+  return new Promise(function(resolve, reject) {
+    var cbName = 'cb_' + Date.now();
+    var script = document.createElement('script');
+    window[cbName] = function(data) {
+      delete window[cbName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+    script.onerror = function() {
+      delete window[cbName];
+      document.body.removeChild(script);
+      reject(new Error('Error'));
+    };
+    script.src = url + '&callback=' + cbName;
+    document.body.appendChild(script);
+  });
+}
+
+function cargarDatos() {
+  return jsonp(API + '?tipo=resumen&mes=' + mesActual)
+    .then(function(data) {
       datosGlobales = data;
       renderInicio(data);
-    } catch(e) {
+    })
+    .catch(function() {
       mostrarToast('Error al cargar datos');
-      document.getElementById('sobres-lista').innerHTML =
-        '<div class="empty">No se pudo conectar. Verificá tu conexión.</div>';
-    }
-  }
-
-  function renderInicio(data) {
-    // Total
-    document.getElementById('total-monto').textContent = formatCRC(data.totalGastado);
-
-    // Sobres
-    const contenedor = document.getElementById('sobres-lista');
-    const cats = data.categorias;
-    let html = '';
-
-    Object.entries(cats).forEach(([nombre, info]) => {
-      const tienePresupuesto = info.presupuesto > 0;
-      const disponible = tienePresupuesto ? info.presupuesto - info.gastado : null;
-      const porcentaje = tienePresupuesto ? Math.min((info.gastado / info.presupuesto) * 100, 100) : 0;
-      const esPasado = tienePresupuesto && disponible < 0;
-
-      let claseDisp = 'ilimitado';
-      let textoDisp = formatCRC(info.gastado);
-      let labelDisp = 'gastados';
-
-      if (tienePresupuesto) {
-        claseDisp = esPasado ? 'negativo' : 'positivo';
-        textoDisp = formatCRC(Math.abs(disponible));
-        labelDisp = esPasado ? 'excedido' : 'disponibles';
-      }
-
-      const colorBarra = esPasado ? '#E74C3C' : info.color;
-
-      html += `
-        <div class="sobre-card" onclick="abrirDetalle('${nombre}')">
-          <div class="sobre-icono" style="background:${info.color}22;">
-            ${info.icono}
-          </div>
-          <div class="sobre-info">
-            <div class="sobre-nombre">${nombre}</div>
-            <div class="sobre-barra-bg">
-              <div class="sobre-barra-fill"
-                style="width:${porcentaje}%;background:${colorBarra};">
-              </div>
-            </div>
-          </div>
-          <div class="sobre-monto">
-            <div class="sobre-disponible ${claseDisp}">${textoDisp}</div>
-            <div class="sobre-label">${labelDisp}</div>
-          </div>
-        </div>`;
+      document.getElementById('sobres-lista').innerHTML = '<div class="empty">No se pudo conectar.</div>';
     });
+}
 
-    contenedor.innerHTML = html;
-  }
-
-  // ── DETALLE ──
-  async function abrirDetalle(categoria) {
-    document.getElementById('pantalla-detalle').classList.add('activa');
-
-    const info = datosGlobales?.categorias?.[categoria];
-    document.getElementById('detalle-titulo').textContent = categoria + ' ' + (info?.icono || '');
-
-    // Resumen
-    const tienePresupuesto = info?.presupuesto > 0;
-    const disponible = tienePresupuesto ? info.presupuesto - info.gastado : null;
-    const claseDisp = !tienePresupuesto ? 'ilimitado' : (disponible < 0 ? 'negativo' : 'positivo');
-
-    let resumenHTML = `
-      <div class="detalle-disponible-grande ${claseDisp}">
-        ${tienePresupuesto ? formatCRC(Math.abs(disponible)) : formatCRC(info?.gastado || 0)}
-      </div>
-      <div class="detalle-disponible-label">
-        ${tienePresupuesto ? (disponible < 0 ? 'excedido' : 'disponibles') : 'gastados este mes'}
-      </div>
-      <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">`;
-
-    if (tienePresupuesto) {
-      resumenHTML += `
-        <div class="detalle-fila">
-          <span class="detalle-fila-label">Presupuestado</span>
-          <span class="detalle-fila-valor">${formatCRC(info.presupuesto)}</span>
-        </div>`;
-    }
-
-    resumenHTML += `
-        <div class="detalle-fila">
-          <span class="detalle-fila-label">Gastado</span>
-          <span class="detalle-fila-valor" style="color:var(--rojo)">${formatCRC(info?.gastado || 0)}</span>
-        </div>
-      </div>`;
-
-    document.getElementById('detalle-resumen').innerHTML = resumenHTML;
-
-    // Transacciones
-    document.getElementById('tx-lista').innerHTML =
-      '<div class="loading"><div class="spinner"></div></div>';
-
-    try {
-      const res = await fetch(API + '?tipo=transacciones&mes=' + mesActual + '&categoria=' + encodeURIComponent(categoria));
-      const data = await res.json();
-      renderTransacciones(data.transacciones);
-    } catch(e) {
-      document.getElementById('tx-lista').innerHTML =
-        '<div class="empty">Error al cargar transacciones.</div>';
-    }
-  }
-
-  function renderTransacciones(txs) {
-    if (!txs || txs.length === 0) {
-      document.getElementById('tx-lista').innerHTML =
-        '<div class="empty">Sin transacciones este mes.</div>';
-      return;
-    }
-
-    let html = '';
-    txs.forEach(tx => {
-      const fecha = formatFecha(tx.fecha);
-      html += `
-        <div class="tx-item">
-          <div>
-            <div class="tx-comercio">${tx.comercio}</div>
-            <div class="tx-fecha">${fecha}</div>
-          </div>
-          <div>
-            <div class="tx-monto">₡${Number(tx.monto).toLocaleString('es-CR')}</div>
-            <div class="tx-tarjeta">${tx.tarjeta || ''}</div>
-          </div>
-        </div>`;
-    });
-
-    document.getElementById('tx-lista').innerHTML = html;
-  }
-
-  function cerrarDetalle() {
-    document.getElementById('pantalla-detalle').classList.remove('activa');
-  }
-
-  // ── UTILIDADES ──
-  function formatCRC(monto) {
-    return '₡' + Number(monto).toLocaleString('es-CR', { minimumFractionDigits: 0 });
-  }
-
-  function formatFecha(fechaStr) {
-    if (!fechaStr) return '';
-    const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    const d = new Date(fechaStr);
-    return d.getUTCDate() + ' ' + meses[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-  }
-
-  function recargar() {
-    document.getElementById('sobres-lista').innerHTML =
-      '<div class="loading"><div class="spinner"></div><div class="loading-txt">Actualizando...</div></div>';
-    cargarDatos().then(() => mostrarToast('✓ Datos actualizados'));
-  }
-
-  function mostrarToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('visible');
-    setTimeout(() => t.classList.remove('visible'), 2500);
-  }
-
-  // ── BACK GESTURE ──
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') cerrarDetalle();
+function renderInicio(data) {
+  document.getElementById('total-monto').textContent = formatCRC(data.totalGastado);
+  var contenedor = document.getElementById('sobres-lista');
+  var cats = data.categorias;
+  var html = '';
+  Object.keys(cats).forEach(function(nombre) {
+    var info = cats[nombre];
+    var tienePresupuesto = info.presupuesto > 0;
+    var disponible = tienePresupuesto ? info.presupuesto - info.gastado : null;
+    var porcentaje = tienePresupuesto ? Math.min((info.gastado / info.presupuesto) * 100, 100) : 0;
+    var esPasado = tienePresupuesto && disponible < 0;
+    var claseDisp = tienePresupuesto ? (esPasado ? 'negativo' : 'positivo') : 'ilimitado';
+    var textoDisp = tienePresupuesto ? formatCRC(Math.abs(disponible)) : formatCRC(info.gastado);
+    var labelDisp = tienePresupuesto ? (esPasado ? 'excedido' : 'disponibles') : 'gastados';
+    var colorBarra = esPasado ? '#E74C3C' : info.color;
+    html += '<div class="sobre-card" onclick="abrirDetalle(\'' + nombre + '\')">' +
+      '<div class="sobre-icono" style="background:' + info.color + '22;">' + info.icono + '</div>' +
+      '<div class="sobre-info"><div class="sobre-nombre">' + nombre + '</div>' +
+      '<div class="sobre-barra-bg"><div class="sobre-barra-fill" style="width:' + porcentaje + '%;background:' + colorBarra + ';"></div></div></div>' +
+      '<div class="sobre-monto"><div class="sobre-disponible ' + claseDisp + '">' + textoDisp + '</div>' +
+      '<div class="sobre-label">' + labelDisp + '</div></div></div>';
   });
+  contenedor.innerHTML = html;
+}
+
+function abrirDetalle(categoria) {
+  document.getElementById('pantalla-detalle').classList.add('activa');
+  var info = datosGlobales && datosGlobales.categorias && datosGlobales.categorias[categoria];
+  document.getElementById('detalle-titulo').textContent = categoria + ' ' + (info ? info.icono : '');
+  var tienePresupuesto = info && info.presupuesto > 0;
+  var disponible = tienePresupuesto ? info.presupuesto - info.gastado : null;
+  var claseDisp = !tienePresupuesto ? 'ilimitado' : (disponible < 0 ? 'negativo' : 'positivo');
+  var montoGrande = tienePresupuesto ? formatCRC(Math.abs(disponible)) : formatCRC((info && info.gastado) || 0);
+  var labelGrande = tienePresupuesto ? (disponible < 0 ? 'excedido' : 'disponibles') : 'gastados este mes';
+  var resumenHTML = '<div class="detalle-disponible-grande ' + claseDisp + '">' + montoGrande + '</div>' +
+    '<div class="detalle-disponible-label">' + labelGrande + '</div>' +
+    '<div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">';
+  if (tienePresupuesto) {
+    resumenHTML += '<div class="detalle-fila"><span class="detalle-fila-label">Presupuestado</span><span class="detalle-fila-valor">' + formatCRC(info.presupuesto) + '</span></div>';
+  }
+  resumenHTML += '<div class="detalle-fila"><span class="detalle-fila-label">Gastado</span><span class="detalle-fila-valor" style="color:var(--rojo)">' + formatCRC((info && info.gastado) || 0) + '</span></div></div>';
+  document.getElementById('detalle-resumen').innerHTML = resumenHTML;
+  document.getElementById('tx-lista').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  jsonp(API + '?tipo=transacciones&mes=' + mesActual + '&categoria=' + encodeURIComponent(categoria))
+    .then(function(data) { renderTransacciones(data.transacciones); })
+    .catch(function() { document.getElementById('tx-lista').innerHTML = '<div class="empty">Error al cargar.</div>'; });
+}
+
+function renderTransacciones(txs) {
+  if (!txs || txs.length === 0) {
+    document.getElementById('tx-lista').innerHTML = '<div class="empty">Sin transacciones este mes.</div>';
+    return;
+  }
+  var html = '';
+  txs.forEach(function(tx) {
+    html += '<div class="tx-item">' +
+      '<div><div class="tx-comercio">' + tx.comercio + '</div><div class="tx-fecha">' + formatFecha(tx.fecha) + '</div></div>' +
+      '<div>' +
+        '<div class="tx-monto">&#8353;' + Number(tx.monto).toLocaleString('es-CR') + '</div>' +
+        '<div class="tx-tarjeta">' + (tx.tarjeta || '') + '</div>' +
+        '<div class="tx-editar" onclick="abrirModal(' + JSON.stringify(tx).replace(/'/g, "\\'") + ')">✏️ cambiar sobre</div>' +
+      '</div></div>';
+  });
+  document.getElementById('tx-lista').innerHTML = html;
+}
+
+function abrirModal(tx) {
+  txEditando = tx;
+  categoriaSeleccionada = tx.categoria;
+  document.getElementById('modal-comercio').textContent = tx.comercio + ' — ' + formatCRC(tx.monto);
+  var html = '';
+  SOBRES.forEach(function(s) {
+    var sel = s.nombre === tx.categoria ? 'seleccionado' : '';
+    html += '<div class="modal-opcion ' + sel + '" onclick="seleccionarCategoria(\'' + s.nombre + '\', this)">' +
+      '<span class="modal-opcion-icono">' + s.icono + '</span>' +
+      '<span class="modal-opcion-nombre">' + s.nombre + '</span></div>';
+  });
+  html += '<div class="modal-opcion-ignorar ' + (tx.estado === 'IGNORADO' ? 'seleccionado' : '') + '" onclick="seleccionarCategoria(\'__IGNORAR__\', this)">' +
+    '<span class="modal-opcion-icono">🚫</span><span class="modal-opcion-nombre">No contabilizar</span></div>';
+  document.getElementById('modal-opciones').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('visible');
+}
+
+function seleccionarCategoria(nombre, el) {
+  categoriaSeleccionada = nombre;
+  document.querySelectorAll('.modal-opcion, .modal-opcion-ignorar').forEach(function(o) {
+    o.classList.remove('seleccionado');
+  });
+  el.classList.add('seleccionado');
+}
+
+function guardarCategoria() {
+  if (!txEditando || !categoriaSeleccionada) return;
+  var esIgnorar = categoriaSeleccionada === '__IGNORAR__';
+  var catFinal = esIgnorar ? txEditando.categoria : categoriaSeleccionada;
+  var estadoFinal = esIgnorar ? 'IGNORADO' : 'ACTIVO';
+  mostrarToast('Guardando...');
+  cerrarModal();
+  jsonp(API + '?tipo=actualizar&id=' + encodeURIComponent(txEditando.id) +
+    '&categoria=' + encodeURIComponent(catFinal) +
+    '&estado=' + encodeURIComponent(estadoFinal))
+    .then(function() {
+      mostrarToast('✓ Sobre actualizado');
+      recargarDetalle();
+    })
+    .catch(function() { mostrarToast('Error al guardar'); });
+}
+
+function recargarDetalle() {
+  cargarDatos();
+}
+
+function cerrarModal() {
+  document.getElementById('modal-overlay').classList.remove('visible');
+  txEditando = null;
+  categoriaSeleccionada = null;
+}
+
+function cerrarDetalle() {
+  document.getElementById('pantalla-detalle').classList.remove('activa');
+}
+
+function formatCRC(monto) {
+  return '&#8353;' + Number(monto).toLocaleString('es-CR', {minimumFractionDigits:0});
+}
+
+function formatFecha(fechaStr) {
+  if (!fechaStr) return '';
+  var meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var d = new Date(fechaStr);
+  return d.getUTCDate() + ' ' + meses[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+}
+
+function recargar() {
+  document.getElementById('sobres-lista').innerHTML = '<div class="loading"><div class="spinner"></div><div class="loading-txt">Actualizando...</div></div>';
+  cargarDatos().then(function() { mostrarToast('Datos actualizados'); });
+}
+
+function mostrarToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(function() { t.classList.remove('visible'); }, 2500);
+}
+
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { cerrarDetalle(); cerrarModal(); } });
 </script>
 </body>
 </html>
