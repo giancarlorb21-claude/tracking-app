@@ -468,7 +468,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const API = 'https://script.google.com/macros/s/AKfycbzU1bIixJaDGBqmBgx5PWMIW2vKIU1ocmtefrALvBJ1ykdOP_8MvNaxm6Xl78fwSw6X/exec';
+  const API = 'https://script.google.com/macros/s/AKfycbyWdhv9hu3bmW19QWWVFxFnqfKLJgTY4qZMYqidkHXLMHjfZUkiTuyfZ9yH7Z-Q-DjYbg/exec';
 
   let mesActual = '2026-06';
   let datosGlobales = null;
@@ -629,8 +629,8 @@
   function formatFecha(fechaStr) {
     if (!fechaStr) return '';
     const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    const d = new Date(fechaStr + 'T12:00:00');
-    return d.getDate() + ' ' + meses[d.getMonth()] + ' ' + d.getFullYear();
+    const d = new Date(fechaStr);
+    return d.getUTCDate() + ' ' + meses[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
   }
 
   function recargar() {
