@@ -100,6 +100,7 @@
   <div class="total-card">
     <div class="total-label">Total gastado este mes</div>
     <div class="total-monto" id="total-monto">Cargando...</div>
+    <div id="total-usd" style="display:none;font-size:13px;color:#7A9BB5;margin-bottom:4px;"></div>
     <div class="total-moneda">Colones costarricenses</div>
   </div>
   <div class="section-title">Mis Sobres</div>
@@ -181,7 +182,11 @@ function cargarDatos() {
 }
 
 function renderInicio(data) {
-  document.getElementById('total-monto').textContent = formatCRC(data.totalGastado);
+  document.getElementById('total-monto').textContent = '₡' + Number(data.totalGastado).toLocaleString('es-CR', {minimumFractionDigits:0, maximumFractionDigits:0});
+      if (data.totalUSD && data.totalUSD > 0) {
+        document.getElementById('total-usd').textContent = '+ $' + Number(data.totalUSD).toFixed(2) + ' USD';
+        document.getElementById('total-usd').style.display = 'block';
+      }
   var contenedor = document.getElementById('sobres-lista');
   var cats = data.categorias;
   var html = '';
@@ -242,7 +247,7 @@ function renderTransacciones(txs) {
   txs.forEach(function(tx, idx) {
     var montoStr = tx.moneda === 'USD'
       ? '$' + Number(tx.monto).toFixed(2)
-      : '&#8353;' + Number(tx.monto).toLocaleString('es-CR');
+      : '₡' + Number(tx.monto).toLocaleString('es-CR', {minimumFractionDigits:0, maximumFractionDigits:0});
     html += '<div class="tx-item">' +
       '<div><div class="tx-comercio">' + tx.comercio + '</div><div class="tx-fecha">' + formatFecha(tx.fecha) + '</div></div>' +
       '<div>' +
@@ -261,7 +266,7 @@ function abrirModal(idx) {
   categoriaSeleccionada = tx.categoria;
   var montoStr = tx.moneda === 'USD'
     ? '$' + Number(tx.monto).toFixed(2)
-    : '&#8353;' + Number(tx.monto).toLocaleString('es-CR');
+    : '₡' + Number(tx.monto).toLocaleString('es-CR', {minimumFractionDigits:0, maximumFractionDigits:0});
   document.getElementById('modal-comercio').innerHTML = tx.comercio + ' &mdash; ' + montoStr;
   var html = '';
   SOBRES.forEach(function(s) {
@@ -312,7 +317,7 @@ function cerrarDetalle() {
 }
 
 function formatCRC(monto) {
-  return '&#8353;' + Number(monto).toLocaleString('es-CR', {minimumFractionDigits:0});
+  return '₡' + Number(monto).toLocaleString('es-CR', {minimumFractionDigits:0, maximumFractionDigits:0});
 }
 
 function formatFecha(fechaStr) {
