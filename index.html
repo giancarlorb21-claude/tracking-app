@@ -55,8 +55,7 @@
     .detalle-disponible-label { font-size:13px; color:var(--texto-soft); margin-top:4px; }
     .tx-titulo { font-size:12px; font-weight:600; color:var(--texto-soft); text-transform:uppercase; letter-spacing:1px; padding:0 24px; margin-bottom:12px; }
     .tx-lista { padding:0 20px; display:flex; flex-direction:column; gap:1px; margin-bottom:40px; }
-    .tx-item { background:var(--surface); padding:16px 20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:background 0.15s; }
-    .tx-item:hover { background:var(--surface2); }
+    .tx-item { background:var(--surface); padding:16px 20px; display:flex; justify-content:space-between; align-items:center; }
     .tx-item:first-child { border-radius:16px 16px 0 0; }
     .tx-item:last-child { border-radius:0 0 16px 16px; }
     .tx-item:only-child { border-radius:16px; }
@@ -78,15 +77,15 @@
     .modal-overlay.visible { display:flex; }
     .modal { background:var(--surface); border-radius:24px 24px 0 0; padding:24px; width:100%; max-width:430px; }
     .modal-titulo { font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; margin-bottom:8px; }
-    .modal-subtitulo { font-size:13px; color:var(--texto-soft); margin-bottom:20px; }
+    .modal-subtitulo { font-size:13px; color:var(--texto-soft); margin-bottom:20px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .modal-opciones { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
     .modal-opcion { background:var(--surface2); border:2px solid transparent; border-radius:14px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:border-color 0.15s; }
     .modal-opcion:active { transform:scale(0.98); }
     .modal-opcion.seleccionado { border-color:var(--amarillo); }
+    .modal-opcion-ignorar { background:var(--surface2); border:2px solid transparent; border-radius:14px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:12px; }
+    .modal-opcion-ignorar.seleccionado { border-color:var(--rojo); }
     .modal-opcion-icono { font-size:20px; }
     .modal-opcion-nombre { font-size:15px; font-weight:500; }
-    .modal-opcion-ignorar { background:var(--surface2); border:2px solid transparent; border-radius:14px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:border-color 0.15s; }
-    .modal-opcion-ignorar.seleccionado { border-color:var(--rojo); }
     .modal-btn { width:100%; background:var(--amarillo); color:#0B1826; border:none; padding:16px; border-radius:14px; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; cursor:pointer; margin-top:8px; }
     .modal-btn-cancelar { width:100%; background:transparent; color:var(--texto-soft); border:none; padding:12px; border-radius:14px; font-size:14px; cursor:pointer; }
   </style>
@@ -136,33 +135,33 @@
 var API = 'https://script.google.com/macros/s/AKfycbyWdhv9hu3bmW19QWWVFxFnqfKLJgTY4qZMYqidkHXLMHjfZUkiTuyfZ9yH7Z-Q-DjYbg/exec';
 var mesActual = '2026-06';
 var datosGlobales = null;
+var txsCache = [];
 var txEditando = null;
 var categoriaSeleccionada = null;
-var categoriaActual = null;
 
 var SOBRES = [
-  { nombre: 'Gasolina',       icono: '⛽' },
-  { nombre: 'Salidas',        icono: '🍽️' },
-  { nombre: 'Comida Casa',    icono: '🛒' },
-  { nombre: 'Neurodiversity', icono: '🧠' },
-  { nombre: 'Otros',          icono: '📦' }
+  { nombre: 'Gasolina',       icono: '\u26FD' },
+  { nombre: 'Salidas',        icono: '\uD83C\uDF7D\uFE0F' },
+  { nombre: 'Comida Casa',    icono: '\uD83D\uDED2' },
+  { nombre: 'Neurodiversity', icono: '\uD83E\uDDE0' },
+  { nombre: 'Otros',          icono: '\uD83D\uDCE6' }
 ];
 
 window.addEventListener('load', cargarDatos);
 
 function jsonp(url) {
   return new Promise(function(resolve, reject) {
-    var cbName = 'cb_' + Date.now();
+    var cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*9999);
     var script = document.createElement('script');
     window[cbName] = function(data) {
       delete window[cbName];
-      document.body.removeChild(script);
+      if (document.body.contains(script)) document.body.removeChild(script);
       resolve(data);
     };
     script.onerror = function() {
       delete window[cbName];
-      document.body.removeChild(script);
-      reject(new Error('Error'));
+      if (document.body.contains(script)) document.body.removeChild(script);
+      reject(new Error('Error de red'));
     };
     script.src = url + '&callback=' + cbName;
     document.body.appendChild(script);
@@ -196,7 +195,7 @@ function renderInicio(data) {
     var textoDisp = tienePresupuesto ? formatCRC(Math.abs(disponible)) : formatCRC(info.gastado);
     var labelDisp = tienePresupuesto ? (esPasado ? 'excedido' : 'disponibles') : 'gastados';
     var colorBarra = esPasado ? '#E74C3C' : info.color;
-    html += '<div class="sobre-card" onclick="abrirDetalle(\'' + nombre + '\')">' +
+    html += '<div class="sobre-card" onclick="abrirDetalle(\'' + nombre.replace(/'/g, "\\'") + '\')">' +
       '<div class="sobre-icono" style="background:' + info.color + '22;">' + info.icono + '</div>' +
       '<div class="sobre-info"><div class="sobre-nombre">' + nombre + '</div>' +
       '<div class="sobre-barra-bg"><div class="sobre-barra-fill" style="width:' + porcentaje + '%;background:' + colorBarra + ';"></div></div></div>' +
@@ -225,8 +224,13 @@ function abrirDetalle(categoria) {
   document.getElementById('detalle-resumen').innerHTML = resumenHTML;
   document.getElementById('tx-lista').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   jsonp(API + '?tipo=transacciones&mes=' + mesActual + '&categoria=' + encodeURIComponent(categoria))
-    .then(function(data) { renderTransacciones(data.transacciones); })
-    .catch(function() { document.getElementById('tx-lista').innerHTML = '<div class="empty">Error al cargar.</div>'; });
+    .then(function(data) {
+      txsCache = data.transacciones || [];
+      renderTransacciones(txsCache);
+    })
+    .catch(function() {
+      document.getElementById('tx-lista').innerHTML = '<div class="empty">Error al cargar.</div>';
+    });
 }
 
 function renderTransacciones(txs) {
@@ -235,31 +239,39 @@ function renderTransacciones(txs) {
     return;
   }
   var html = '';
-  txs.forEach(function(tx) {
+  txs.forEach(function(tx, idx) {
+    var montoStr = tx.moneda === 'USD'
+      ? '$' + Number(tx.monto).toFixed(2)
+      : '&#8353;' + Number(tx.monto).toLocaleString('es-CR');
     html += '<div class="tx-item">' +
       '<div><div class="tx-comercio">' + tx.comercio + '</div><div class="tx-fecha">' + formatFecha(tx.fecha) + '</div></div>' +
       '<div>' +
-        '<div class="tx-monto">&#8353;' + Number(tx.monto).toLocaleString('es-CR') + '</div>' +
+        '<div class="tx-monto">' + montoStr + '</div>' +
         '<div class="tx-tarjeta">' + (tx.tarjeta || '') + '</div>' +
-        '<div class="tx-editar" onclick="abrirModal(' + JSON.stringify(tx).replace(/'/g, "\\'") + ')">✏️ cambiar sobre</div>' +
+        '<div class="tx-editar" onclick="abrirModal(' + idx + ')">&#9999;&#65039; cambiar sobre</div>' +
       '</div></div>';
   });
   document.getElementById('tx-lista').innerHTML = html;
 }
 
-function abrirModal(tx) {
+function abrirModal(idx) {
+  var tx = txsCache[idx];
+  if (!tx) return;
   txEditando = tx;
   categoriaSeleccionada = tx.categoria;
-  document.getElementById('modal-comercio').textContent = tx.comercio + ' — ' + formatCRC(tx.monto);
+  var montoStr = tx.moneda === 'USD'
+    ? '$' + Number(tx.monto).toFixed(2)
+    : '&#8353;' + Number(tx.monto).toLocaleString('es-CR');
+  document.getElementById('modal-comercio').innerHTML = tx.comercio + ' &mdash; ' + montoStr;
   var html = '';
   SOBRES.forEach(function(s) {
     var sel = s.nombre === tx.categoria ? 'seleccionado' : '';
-    html += '<div class="modal-opcion ' + sel + '" onclick="seleccionarCategoria(\'' + s.nombre + '\', this)">' +
+    html += '<div class="modal-opcion ' + sel + '" onclick="seleccionarCategoria(\'' + s.nombre.replace(/'/g, "\\'") + '\', this)">' +
       '<span class="modal-opcion-icono">' + s.icono + '</span>' +
       '<span class="modal-opcion-nombre">' + s.nombre + '</span></div>';
   });
-  html += '<div class="modal-opcion-ignorar ' + (tx.estado === 'IGNORADO' ? 'seleccionado' : '') + '" onclick="seleccionarCategoria(\'__IGNORAR__\', this)">' +
-    '<span class="modal-opcion-icono">🚫</span><span class="modal-opcion-nombre">No contabilizar</span></div>';
+  html += '<div class="modal-opcion-ignorar' + (tx.estado === 'IGNORADO' ? ' seleccionado' : '') + '" onclick="seleccionarCategoria(\'__IGNORAR__\', this)">' +
+    '<span class="modal-opcion-icono">\uD83D\uDEAB</span><span class="modal-opcion-nombre">No contabilizar</span></div>';
   document.getElementById('modal-opciones').innerHTML = html;
   document.getElementById('modal-overlay').classList.add('visible');
 }
@@ -283,14 +295,10 @@ function guardarCategoria() {
     '&categoria=' + encodeURIComponent(catFinal) +
     '&estado=' + encodeURIComponent(estadoFinal))
     .then(function() {
-      mostrarToast('✓ Sobre actualizado');
-      recargarDetalle();
+      mostrarToast('Sobre actualizado');
+      cargarDatos();
     })
     .catch(function() { mostrarToast('Error al guardar'); });
-}
-
-function recargarDetalle() {
-  cargarDatos();
 }
 
 function cerrarModal() {
@@ -326,7 +334,9 @@ function mostrarToast(msg) {
   setTimeout(function() { t.classList.remove('visible'); }, 2500);
 }
 
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { cerrarDetalle(); cerrarModal(); } });
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { cerrarDetalle(); cerrarModal(); }
+});
 </script>
 </body>
 </html>
