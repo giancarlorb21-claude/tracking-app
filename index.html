@@ -260,6 +260,7 @@ function renderTransacciones(txs) {
 }
 
 function abrirModal(idx) {
+  console.log("abrirModal idx:", idx, "tx:", txsCache[idx]);
   var tx = txsCache[idx];
   if (!tx) return;
   txEditando = tx;
